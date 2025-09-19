@@ -3,8 +3,11 @@ package com.example.firstproject.repository;
 import com.example.firstproject.entity.Article;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.ArrayList;
+
 public interface ArticleRepository extends CrudRepository<Article, Long>
 // 2개의 제너릭 요소를 받음
 {
-
-} 
+    @Override
+    ArrayList<Article> findAll();
+}
