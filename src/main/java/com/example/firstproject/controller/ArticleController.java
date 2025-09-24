@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 @Slf4j //로깅 기능을 위한 어노테이션
 @Controller
-public class ArticleController {
+public class ArticleController<model> {
     @Autowired //스프링부트가 미리 생성해 놓은 리파지터리 객체 주입
     private ArticleRepository articleRepository; //객체 선언
 
@@ -36,7 +36,7 @@ public class ArticleController {
         Article saved = articleRepository.save(article); //saved 객체에 반환
         log.info(saved.toString());
       //  System.out.println(saved.toString());
-        return "";
+        return "redirect:/articles/"+saved.getId();
 
     }
     @GetMapping("/articles/{id}")
@@ -48,7 +48,7 @@ public class ArticleController {
         model.addAttribute("article", articleEntity); //모델에 데이터 등록할 떄 addAttribute() 사용
 
         //3. 뷰 페이지 반환
-        return "articles/show";
+        return "articles/show"; //목록으로 돌아가기 링크를 넣을 뷰 파일 확인
     }
     @GetMapping("/articles")
     public String index(Model model){
@@ -58,5 +58,28 @@ public class ArticleController {
         model.addAttribute("articleList",articleEntityList);
         //3. 뷰 페이지 설정하기
         return "articles/index";
+    }
+    @GetMapping("/articles/{id}/edit")
+    public String edit(@PathVariable Long id, Model model){ //뷰 페이지에서 데이터 사용가능하도록 모델에 데이터 등록
+        Article articleEntity = articleRepository.findById(id).orElse(null); //DB에서 데이터 가져오기
+        model.addAttribute("article", articleEntity); //articleEntity 를 article 로 등록
+        return "articles/edit";
+    }
+
+    @PostMapping("/articles/update")
+    public String update(ArticleForm form) {  //매개변수로 DTO 받아 오기
+        log.info(form.toString());
+        //1. DTO를 엔티티로 변환하기
+        Article articleEntity = form.toEntity(); //DTO를 엔티티로 변환
+        log.info(articleEntity.toString());
+        //2. 엔티티를 DB에 저장하기
+        //2-1. DB에서 기존 데이터 가져오기
+        Article target = articleRepository.findById(articleEntity.getId()).orElse(null);
+        //2-2. 기존 데이터 값을 갱신하기
+        if (target != null){
+            articleRepository.save(articleEntity); //엔티티를 DB에 저장(갱신)
+        }
+        //3. 수정 결과 페이지로 리다이렉트하기
+        return "redirect:/articles/"+ articleEntity.getId();
     }
 }
