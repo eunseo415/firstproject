@@ -94,6 +94,7 @@ public class ArticleController<model> {
             articleRepository.delete(target); //delete 메서드로 대상 삭제
             rttr.addFlashAttribute("msg", "삭제됐습니다!");
         }
+
         //3. 결과 페이지로 리다이렉트하기
         return "redirect:/articles";
     }
